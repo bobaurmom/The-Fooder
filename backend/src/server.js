@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { verifyToken } from './middleware/authMiddleware.js';
+import { supabase } from '../supabaseClient.js';
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +28,52 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date() });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'email and password are required'
+      });
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      return res.status(401).json({
+        error: error.message,
+        code: error.status || 401
+      });
+    }
+
+    return res.json({
+      access_token: data.session?.access_token,
+      refresh_token: data.session?.refresh_token,
+      expires_in: data.session?.expires_in,
+      token_type: data.session?.token_type,
+      user: data.user
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({
+      error: 'Login failed'
+    });
+  }
+});
+
+// Protected route example
+app.get('/api/user', verifyToken, (req, res) => {
+  res.json({
+    message: 'This is a protected route',
+    userId: req.user.id,
+    email: req.user.email
+  });
 });
 
 // Error handling middleware
