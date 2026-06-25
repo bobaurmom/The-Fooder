@@ -64,3 +64,45 @@ export function useAuth() {
 
   return { user, loading, error, signUp, signIn, signOut }
 }
+
+// import { useEffect, useState } from 'react';
+// import { getCurrentUser } from '../services/authService';
+
+// const useAuth = () => {
+//   const [user, setUser] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   const logout = () => {
+//     localStorage.removeItem('access_token');
+//     localStorage.removeItem('refresh_token');
+//     localStorage.removeItem('user');
+//     setUser(null);
+//   };
+
+//   useEffect(() => {
+//     const token = localStorage.getItem('access_token');
+
+//     if (!token) {
+//       setLoading(false);
+//       return;
+//     }
+
+//     const fetchUser = async () => {
+//       try {
+//         const data = await getCurrentUser();
+//         setUser(data);
+//       } catch (error) {
+//         console.error('Failed to get current user:', error);
+//         logout();
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchUser();
+//   }, []);
+
+//   return { user, setUser, loading, logout };
+// };
+
+// export default useAuth;

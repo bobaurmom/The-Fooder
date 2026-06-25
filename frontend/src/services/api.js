@@ -36,3 +36,25 @@ api.interceptors.response.use(
 )
 
 export default api
+
+// import axios from 'axios';
+
+// const api = axios.create({
+//   baseURL: 'http://localhost:5000/api',
+//   headers: {
+//     'Content-Type': 'application/json'
+//   }
+// });
+
+// // attach token automatically if it exists
+// api.interceptors.request.use((config) => {
+//   const token = localStorage.getItem('access_token');
+
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+
+//   return config;
+// });
+
+// export default api;
