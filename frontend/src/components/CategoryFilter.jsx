@@ -1,3 +1,4 @@
+
 export default function CategoryFilter() {
   const categories = ["All", "Type", "Halal Food"];
 
@@ -14,4 +15,5 @@ export default function CategoryFilter() {
     </div>
   );
 }
+
 

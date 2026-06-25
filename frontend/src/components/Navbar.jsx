@@ -1,25 +1,7 @@
-// import { FaSearch, FaFilter } from "react-icons/fa";
 
-// export default function Navbar() {
-//   return (
-//     <div className="p-4 bg-white shadow">
-//       <h1 className="text-xl font-bold mb-2">Order your favourite food!</h1>
-//       <div className="flex items-center gap-2">
-//         <div className="flex items-center flex-1 px-3 py-2 border rounded-lg">
-//           <FaSearch className="text-gray-500 mr-2" />
-//           <input
-//             type="text"
-//             placeholder="Search..."
-//             className="flex-1 outline-none"
-//           />
-//         </div>
-//         <button className="p-2 bg-gray-200 rounded-lg">
-//           <FaFilter className="text-gray-600" />
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
+
+
+
 
 import { FaSearch, FaSlidersH, FaUserCircle } from "react-icons/fa";
 
@@ -55,5 +37,3 @@ export default function Navbar() {
     </div>
   );
 }
-
-

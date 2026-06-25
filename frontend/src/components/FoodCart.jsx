@@ -1,3 +1,5 @@
+
+
 import { FaHeart, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 export default function FoodCard() {
