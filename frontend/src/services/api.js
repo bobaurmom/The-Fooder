@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { supabase } from './supabaseClient'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = import.meta.env.VITE_API_URL
 
 const api = axios.create({
   baseURL: API_URL,
@@ -9,11 +10,15 @@ const api = axios.create({
   },
 })
 
-// Add token to requests if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+// Add Supabase token to requests
+api.interceptors.request.use(async (config) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.access_token) {
+      config.headers.Authorization = `Bearer ${session.access_token}`
+    }
+  } catch (error) {
+    console.error('Error getting session:', error)
   }
   return config
 })
@@ -23,8 +28,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
+      // Token expired or invalid - user will be logged out
+      supabase.auth.signOut()
     }
     return Promise.reject(error)
   }
