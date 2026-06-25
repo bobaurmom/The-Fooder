@@ -201,4 +201,36 @@ app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
 
+app.post('/api/foods/filter', async (req, res) => {
+  try {
+    const { minBudget, maxBudget, distance, categories } = req.body;
+
+    let query = supabase
+      .from('foods')
+      .select('*')
+      .gte('price', minBudget || 0)
+      .lte('price', maxBudget || 999999)
+      .lte('distance_km', distance || 999999);
+
+    if (categories && categories.length > 0) {
+      query = query.in('category', categories);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.json({
+      foods: data
+    });
+  } catch (error) {
+    console.error('FILTER ERROR:', error);
+    return res.status(500).json({
+      error: 'Failed to filter foods'
+    });
+  }
+});
+
 export default app;
