@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
+import { saveUserPreferences } from '../services/preferencesService';
 import '../styles/filter.css';
 
 const Filter = () => {
@@ -12,7 +13,9 @@ const Filter = () => {
 
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [savingPreference, setSavingPreference] = useState(false);
   const [error, setError] = useState('');
+  const [preferenceMessage, setPreferenceMessage] = useState('');
 
   const categories = ['Food', 'Drink', 'Snack'];
 
@@ -50,6 +53,37 @@ const Filter = () => {
       setError(err.response?.data?.error || 'Failed to fetch foods');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSavePreferences = async () => {
+    try {
+      setSavingPreference(true);
+      setPreferenceMessage('');
+      setError('');
+
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = storedUser.user_id || storedUser.id;
+
+      if (!userId) {
+        setError('Please login before saving preferences');
+        return;
+      }
+
+      await saveUserPreferences({
+        userId,
+        minBudget: filters.minBudget,
+        maxBudget: filters.maxBudget,
+        distance: filters.distance,
+        categories: filters.categories
+      });
+
+      setPreferenceMessage('Preferences saved');
+    } catch (err) {
+      console.log('SAVE PREFERENCE ERROR:', err.message);
+      setError(err.message || 'Failed to save preferences');
+    } finally {
+      setSavingPreference(false);
     }
   };
 
@@ -119,6 +153,17 @@ const Filter = () => {
               ))}
             </div>
           </div>
+
+          <button
+            type="button"
+            className="category-btn"
+            onClick={handleSavePreferences}
+            disabled={savingPreference}
+          >
+            {savingPreference ? 'Saving...' : 'Save Preferences'}
+          </button>
+
+          {preferenceMessage && <p>{preferenceMessage}</p>}
         </div>
 
         <div className="results-section">

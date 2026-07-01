@@ -196,24 +196,53 @@ app.get('/api/user', verifyToken, (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
-});
+const toNumber = (value, fallback) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+};
 
+/* =========================
+   FOOD FILTER
+========================= */
 app.post('/api/foods/filter', async (req, res) => {
   try {
-    const { minBudget, maxBudget, distance, categories } = req.body;
+    const {
+      minBudget,
+      maxBudget,
+      minPrice,
+      maxPrice,
+      distance,
+      location,
+      categories
+    } = req.body;
+
+    const minimumPrice = toNumber(minPrice ?? minBudget, 0);
+    const maximumPrice = toNumber(maxPrice ?? maxBudget, 999999);
+    const maxDistance = toNumber(distance, 999999);
+    const locationFilter = typeof location === 'string' ? location.trim() : '';
+    const selectedCategories = Array.isArray(categories)
+      ? categories.filter(Boolean)
+      : [];
+
+    if (minimumPrice > maximumPrice) {
+      return res.status(400).json({
+        error: 'Minimum price cannot be greater than maximum price'
+      });
+    }
 
     let query = supabase
       .from('foods')
       .select('*')
-      .gte('price', minBudget || 0)
-      .lte('price', maxBudget || 999999)
-      .lte('distance_km', distance || 999999);
+      .gte('price', minimumPrice)
+      .lte('price', maximumPrice)
+      .lte('distance_km', maxDistance);
 
-    if (categories && categories.length > 0) {
-      query = query.in('category', categories);
+    if (locationFilter) {
+      query = query.ilike('location', `%${locationFilter}%`);
+    }
+
+    if (selectedCategories.length > 0) {
+      query = query.in('category', selectedCategories);
     }
 
     const { data, error } = await query;
@@ -231,6 +260,11 @@ app.post('/api/foods/filter', async (req, res) => {
       error: 'Failed to filter foods'
     });
   }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
 });
 
 export default app;

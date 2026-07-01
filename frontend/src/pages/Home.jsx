@@ -16,6 +16,7 @@ const Home = () => {
       <h1>Welcome to Fooder</h1>
       <p>Hello, {user?.email || 'User'}</p>
       <button onClick={handleLogout}>Logout</button>
+      <button onClick={() => navigate('/filter')}>Go to Filter</button>
     </div>
   );
 };
