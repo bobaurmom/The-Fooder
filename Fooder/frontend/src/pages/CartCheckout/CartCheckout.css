@@ -1,0 +1,73 @@
+/* ─── ORDERS TABLE ───────────────────────────────────────────── */
+.orders-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.orders-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.orders-header span {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.orders-table thead tr { background: #f9fafb; }
+
+.orders-table th {
+  text-align: left;
+  padding: 10px 24px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.orders-table tbody tr {
+  border-top: 1px solid #f9fafb;
+  transition: background 0.15s;
+}
+
+.orders-table tbody tr:hover { background: #fafafa; }
+
+.orders-table td { padding: 14px 24px; color: #374151; }
+
+.order-id    { font-family: monospace; font-size: 12px; color: #9ca3af; }
+.order-name  { font-weight: 500; color: #111827; }
+.order-total { font-weight: 600; color: #111827; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-badge.completed { background: #dcfce7; color: #15803d; }
+.status-badge.pending   { background: #ffedd5; color: #c2410c; }
+.status-badge.cancelled { background: #fee2e2; color: #b91c1c; }
+
+.order-time { color: #9ca3af; font-size: 12px; }

@@ -1,0 +1,169 @@
+/* ─── NAVBAR ─────────────────────────────────────────────────── */
+.navbar {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #6b7280;
+  font-family: inherit;
+  transition: color 0.2s;
+}
+
+.nav-tab:hover { color: #1a1a1a; }
+
+.nav-tab.active {
+  color: #dc2626;
+  border-bottom-color: #dc2626;
+}
+
+.navbar-logo {
+  flex: 1;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.navbar-logo span { color: #dc2626; }
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-search-box {
+  position: relative;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .nav-search-box { display: block; }
+}
+
+.nav-search-box input {
+  padding: 6px 12px 6px 32px;
+  font-size: 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  width: 176px;
+  outline: none;
+  font-family: inherit;
+}
+
+.nav-search-box input:focus { border-color: #f87171; }
+
+.nav-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 7px;
+  border-radius: 8px;
+  color: #6b7280;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  position: relative;
+}
+
+.icon-btn:hover {
+  background: #f3f4f6;
+  color: #1a1a1a;
+}
+
+.notif-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background: #dc2626;
+  border-radius: 50%;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.btn-logout:hover { background: #b91c1c; }
+
+/* ─── LAYOUT SHELL ───────────────────────────────────────────── */
+.layout-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.page-header { margin-bottom: 24px; }
+
+.page-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.page-header p {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.layout-footer {
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+  padding: 24px;
+  margin-top: 32px;
+  border-top: 1px solid #f0f0f0;
+}
