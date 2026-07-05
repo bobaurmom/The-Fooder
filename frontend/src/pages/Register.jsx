@@ -1,109 +1,54 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { registerUser } from '../services/authService';
-import '../styles/auth.css';
 
-const Register = () => {
-  const navigate = useNavigate();
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import AuthScreen from '../components/AuthScreen'
+import { useAuth } from '../auth/AuthContext'
 
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-    username: ''
-  });
+export default function Register() {
+  const navigate = useNavigate()
+  const { signUp } = useAuth()
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+  const [info, setInfo] = useState(null)
 
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+  // AuthScreen will call this with { name, email, password }
+  const handleSubmit = async ({ name, email, password }) => {
+    setSubmitting(true)
+    setError(null)
+    setInfo(null)
 
     try {
-      setLoading(true);
+      const { emailConfirmationRequired } = await signUp({ name, email, password })
 
-      const data = await registerUser(
-        form.email,
-        form.password,
-        form.username
-      );
-
-      console.log('REGISTER SUCCESS:', data);
-      setSuccess('Register successful! Redirecting to login...');
-
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
+      if (emailConfirmationRequired) {
+        setInfo('Check your email to confirm your account, then log in.')
+        setTimeout(() => {
+          navigate('/login', {
+            replace: true,
+            state: { message: 'Check your email to confirm your account, then log in.' },
+          })
+        }, 2000)
+      } else {
+        // If confirmation is not required, log them in or redirect home
+        navigate('/', { replace: true })
+      }
     } catch (err) {
-      console.log('REGISTER ERROR:', err.response?.data || err.message);
-      setError(err.response?.data?.error || 'Register failed');
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
-    <div className="auth-page">
-      <div className="auth-wrapper">
-        <h1 className="brand-title">Fooder</h1>
-        <p className="brand-subtitle">Order your favourite food!</p>
+    <AuthScreen
+      mode="register"
+      onSubmit={handleSubmit}
+      onSwitchMode={() => navigate('/login')}
+      onBack={() => navigate('/')}
+      submitting={submitting}
+      error={error}
+      info={info}
+    />
+  )
+}
 
-        <div className="auth-card">
-          <h2>Sign up</h2>
-
-          <form onSubmit={handleSubmit}>
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-            />
-
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-            />
-
-            <label>Username</label>
-            <input
-              type="text"
-              name="username"
-              placeholder="Enter your username"
-              value={form.username}
-              onChange={handleChange}
-            />
-
-            <div className="auth-links">
-              <span>Forget Password?</span>
-              <Link to="/login">Log in?</Link>
-            </div>
-
-            {error && <p className="error-text">{error}</p>}
-            {success && <p className="success-text">{success}</p>}
-
-            <button className="auth-btn" type="submit" disabled={loading}>
-              {loading ? 'Signing up...' : 'Sign up'}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Register;

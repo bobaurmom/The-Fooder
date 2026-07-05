@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Tailwind v4 uses this @theme block instead of tailwind.config.js
+   to register custom colors/fonts as real utility classes
+   (bg-brand, text-brand, from-brand-light, to-brand-dark, font-display, etc). */
+@theme {
+  --color-brand: #EE2B3C;
+  --color-brand-dark: #C8102E;
+  --color-brand-light: #FF5A67;
+  --font-display: "Playfair Display", serif;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #EFEFEF;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

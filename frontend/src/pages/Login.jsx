@@ -1,93 +1,39 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { loginUser } from '../services/authService';
-import '../styles/auth.css';
+import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import AuthScreen from '../components/AuthScreen'
+import { useAuth } from '../auth/AuthContext'
 
-const Login = () => {
-  const navigate = useNavigate();
+export default function Login() {
+  const { signIn } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
 
-  const [form, setForm] = useState({
-    email: '',
-    password: ''
-  });
+  const redirectTo = location.state?.from?.pathname || '/'
 
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
+  const handleSubmit = async ({ email, password }) => {
+    setSubmitting(true)
+    setError(null)
     try {
-      setLoading(true);
-
-      const data = await loginUser(form.email, form.password);
-
-      console.log('LOGIN SUCCESS:', data);
-
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      navigate('/');
+      await signIn({ email, password })
+      navigate(redirectTo, { replace: true })
     } catch (err) {
-      console.log('LOGIN ERROR:', err.response?.data || err.message);
-      setError(err.response?.data?.error || 'Login failed');
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
-    <div className="auth-page">
-      <div className="auth-wrapper">
-        <h1 className="brand-title">Fooder</h1>
-        <p className="brand-subtitle">Order your favourite food!</p>
-
-        <div className="auth-card">
-          <h2>Login</h2>
-
-          <form onSubmit={handleSubmit}>
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-            />
-
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-            />
-
-            <div className="auth-links">
-              <span>Forget Password?</span>
-              <Link to="/register">Sign up?</Link>
-            </div>
-
-            {error && <p className="error-text">{error}</p>}
-
-            <button className="auth-btn" type="submit" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Login;
+    <AuthScreen
+      mode="login"
+      onSubmit={handleSubmit}
+      onSwitchMode={() => navigate('/register')}
+      onBack={() => navigate('/')}
+      submitting={submitting}
+      error={error}
+      info={location.state?.message}
+    />
+  )
+}

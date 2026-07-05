@@ -1,24 +1,14 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
+import HomeScreen from '../components/HomeScreen'
 
-const Home = () => {
-  const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
+export default function Home() {
+  const navigate = useNavigate()
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
+  // /profile is wrapped in <ProtectedRoute>, so:
+  // - logged in    -> lands on the profile page
+  // - not logged in -> ProtectedRoute bounces them to /login automatically
+  const handleProfileClick = () => navigate('/profile')
+  const handleFilterClick = () => navigate('/filter')
 
-  return (
-    <div style={{ padding: '30px' }}>
-      <h1>Welcome to Fooder</h1>
-      <p>Hello, {user?.email || 'User'}</p>
-      <button onClick={handleLogout}>Logout</button>
-      <button onClick={() => navigate('/filter')}>Go to Filter</button>
-    </div>
-  );
-};
-
-export default Home;
+  return <HomeScreen onProfileClick={handleProfileClick} onFilterClick={handleFilterClick} />
+}
