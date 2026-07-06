@@ -36,7 +36,7 @@ const Login = () => {
       localStorage.setItem('refresh_token', data.refresh_token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      navigate('/');
+      navigate('/fyp');
     } catch (err) {
       console.log('LOGIN ERROR:', err.response?.data || err.message);
       setError(err.response?.data?.error || 'Login failed');

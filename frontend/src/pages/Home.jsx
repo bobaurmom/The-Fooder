@@ -1,51 +1,23 @@
 
 
-import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
-import CategoryFilter from "../components/CategoryFilter";
-import BottomNav from "../components/BottomNav";
-import api from "../services/api";
-import FoodCard from "../components/FoodCart";
-import Filter from "./Filter";
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
-  const [filters, setFilters] = useState({
-    minBudget: 0,
-    maxBudget: 20,
-    distance: 5,
-    categories: [],
-  });
-  const [foods, setFoods] = useState([]);
-  const [showFilters, setShowFilters] = useState(false); // toggle panel
-
-  useEffect(() => {
-    const fetchFoods = async () => {
-      const response = await api.post("/foods/filter", filters);
-      setFoods(response.data.foods || []);
-    };
-    fetchFoods();
-  }, [filters]);
+  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-20">
-      {/* Navbar with filter button toggle */}
-      <Navbar onFilterClick={() => setShowFilters((prev) => !prev)} />
-      
-      <CategoryFilter />
-       <FoodCard/>
-      {/* Filter panel appears when button clicked */}
-      {showFilters && (
-        <Filter filters={filters} setFilters={setFilters} />
-      )}
-
-      {/* Food results */}
-      <div className="px-4 mt-4 grid gap-4">
-        {foods.map((food) => (
-          <FoodCard key={food.id} food={food} />
-        ))}
+    <div 
+      className="min-h-screen bg-red-600 flex flex-col items-center justify-center cursor-pointer"
+      onClick={() => navigate('/login')}
+    >
+      <div className="text-center">
+        <h1 className="text-8xl font-bold text-white mb-8" style={{ fontFamily: 'cursive, script' }}>
+          Fooder
+        </h1>
+        <div className="text-6xl mb-4">
+          
+        </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 }
