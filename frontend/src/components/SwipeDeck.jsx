@@ -18,6 +18,7 @@ export default function Food({ food = fallbackFood, onAddToCart, onOrder, onNext
 	const [imageIndex, setImageIndex] = useState(0);
 	const [isFlipped, setIsFlipped] = useState(false);
 	const [showHeart, setShowHeart] = useState(false);
+	const [showCart, setShowCart] = useState(false);
 	const [slideDirection, setSlideDirection] = useState(null);
 	const [lastClickTime, setLastClickTime] = useState(0);
 
@@ -26,11 +27,13 @@ export default function Food({ food = fallbackFood, onAddToCart, onOrder, onNext
 		setImageIndex(0);
 		setIsFlipped(false);
 		setShowHeart(false);
+		setShowCart(false);
 		setSlideDirection(null);
 	}, [food]);
 
 	const currentImage = mergedFood.gallery[imageIndex % mergedFood.gallery.length];
 	const price = Number(mergedFood.price || 0).toFixed(2);
+	const distanceDisplay = mergedFood.distance_km !== null ? `${mergedFood.distance_km} km` : 'Location not available';
 
 	const goToPreviousImage = () => {
 		setImageIndex((current) => (current - 1 + mergedFood.gallery.length) % mergedFood.gallery.length);
@@ -85,12 +88,20 @@ export default function Food({ food = fallbackFood, onAddToCart, onOrder, onNext
 	const handleAddToCart = () => {
 		if (onAddToCart) {
 			onAddToCart(mergedFood);
+			setShowCart(true);
+			setTimeout(() => {
+				setShowCart(false);
+			}, 600);
 		}
 	};
 
 	const handleOrder = () => {
 		if (onOrder) {
 			onOrder(mergedFood);
+			setShowHeart(true);
+			setTimeout(() => {
+				setShowHeart(false);
+			}, 600);
 		}
 	};
 
@@ -108,10 +119,11 @@ export default function Food({ food = fallbackFood, onAddToCart, onOrder, onNext
 			<div className="swipe-card-shell">
 				<div className={`swipe-card ${isFlipped ? 'is-flipped' : ''} ${slideDirection ? `slide-${slideDirection}` : ''}`}>
 					{showHeart && <div className="heart-pop"><FaHeart /></div>}
+					{showCart && <div className="cart-pop"><FaShoppingCart /></div>}
 					<div className="swipe-card-face swipe-card-front" onClick={handleCardClick}>
 						<div className="swipe-card-media">
 							<img src={currentImage} alt={mergedFood.name} className="swipe-card-image" />
-							<div className="swipe-card-badge">{mergedFood.distance_km} km away</div>
+							<div className="swipe-card-badge">{distanceDisplay} away</div>
 						</div>
 
 						<div className="swipe-card-content">
@@ -123,7 +135,7 @@ export default function Food({ food = fallbackFood, onAddToCart, onOrder, onNext
 							</div>
 
 							<div className="swipe-card-meta">
-								<span>{mergedFood.distance_km} km</span>
+								<span>{distanceDisplay}</span>
 							</div>
 						</div>
 					</div>
@@ -146,7 +158,7 @@ export default function Food({ food = fallbackFood, onAddToCart, onOrder, onNext
 							</div>
 							<div>
 								<span className="back-label">Distance</span>
-								<strong>{mergedFood.distance_km} km</strong>
+								<strong>{distanceDisplay}</strong>
 							</div>
 						</div>
 

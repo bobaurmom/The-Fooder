@@ -373,3 +373,30 @@
 		opacity: 0;
 	}
 }
+
+/* Cart pop animation */
+.cart-pop {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 80px;
+	color: #DC2626;
+	z-index: 100;
+	animation: cartPop 0.4s ease-in-out forwards;
+}
+
+@keyframes cartPop {
+	0% {
+		transform: translate(-50%, -50%) scale(0);
+		opacity: 0;
+	}
+	50% {
+		transform: translate(-50%, -50%) scale(1.2);
+		opacity: 1;
+	}
+	100% {
+		transform: translate(-50%, -50%) scale(0);
+		opacity: 0;
+	}
+}

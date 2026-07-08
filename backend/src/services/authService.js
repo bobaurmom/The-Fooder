@@ -48,5 +48,32 @@ export const authService = {
     }
 
     return data.user;
+  },
+  async updateProfile(sessionToken, profileData) {
+    const { data, error } = await authRepository.updateProfile(sessionToken, profileData);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data.user;
+  },
+  async forgotPassword(email) {
+    const { data, error } = await authRepository.forgotPassword(email);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  },
+  async resetPassword(token, password) {
+    const { data, error } = await authRepository.resetPassword(token, password);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
   }
 };

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Food from '../components/SwipeDeck';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import api from '../services/api';
+import { getCurrentLocation } from '../utils/geolocation';
 
 export default function Fyp() {
 	const [foods, setFoods] = useState([]);
@@ -12,6 +13,8 @@ export default function Fyp() {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [filters, setFilters] = useState({ distance: null, maxBudget: null });
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [userLocation, setUserLocation] = useState(null);
 
 	const fetchFoods = async (category = null, filterParams = null, search = null) => {
 		try {
@@ -31,6 +34,10 @@ export default function Fyp() {
 			if (search) {
 				params.search = search;
 			}
+			if (userLocation) {
+				params.lat = userLocation.latitude;
+				params.lng = userLocation.longitude;
+			}
 
 			const response = await api.get('/foods', { params });
 			setFoods(response.data.foods || []);
@@ -43,8 +50,28 @@ export default function Fyp() {
 	};
 
 	useEffect(() => {
-		fetchFoods(selectedCategory, filters, searchQuery);
-	}, [selectedCategory, filters, searchQuery]);
+		// Get user location on mount
+		getCurrentLocation()
+			.then((location) => {
+				setUserLocation(location);
+			})
+			.catch((err) => {
+				console.error('Failed to get location:', err.message);
+				// Continue without location - backend will use fallback
+			});
+	}, []);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setDebouncedSearchQuery(searchQuery);
+		}, 500);
+
+		return () => clearTimeout(timer);
+	}, [searchQuery]);
+
+	useEffect(() => {
+		fetchFoods(selectedCategory, filters, debouncedSearchQuery);
+	}, [selectedCategory, filters, debouncedSearchQuery, userLocation]);
 
 	const handleCategoryChange = (category) => {
 		setSelectedCategory(category);
@@ -61,10 +88,10 @@ export default function Fyp() {
 		setCurrentIndex(0);
 	};
 
-	const handleSearch = (query) => {
+	const handleSearch = useCallback((query) => {
 		setSearchQuery(query);
 		setCurrentIndex(0);
-	};
+	}, []);
 	const handleAddToCart = (food) => {
         const savedCart = localStorage.getItem('fooder_cart');
         const cart = savedCart ? JSON.parse(savedCart) : [];
@@ -82,8 +109,13 @@ export default function Fyp() {
 		console.log('Added to cart:', food.name);
     };
 
-    const handleOrder = (food) => {
-        console.log('Ordered:', food.name);
+    const handleOrder = async (food) => {
+        try {
+            await api.post('/favorites', { foodId: food.food_id });
+            console.log('Added to favorites:', food.name);
+        } catch (error) {
+            console.error('Error adding to favorites:', error);
+        }
     };
 
     const handleNextFood = () => {

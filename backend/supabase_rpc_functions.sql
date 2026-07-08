@@ -1,6 +1,5 @@
 -- Supabase RPC Function: get_foods_with_distance
 -- This function calculates the distance between the user's location and each restaurant
--- Returns food items with distance in kilometers (rounded to 1 decimal place)
 
 CREATE OR REPLACE FUNCTION get_foods_with_distance(user_lat FLOAT, user_lng FLOAT)
 RETURNS TABLE (
@@ -9,7 +8,7 @@ RETURNS TABLE (
   description TEXT,
   image_url TEXT,
   price NUMERIC,
-  distance_km FLOAT,
+  distance_km NUMERIC,
   restaurant_name TEXT,
   restaurant_address TEXT
 )
@@ -23,11 +22,11 @@ AS $$
     fi.price,
     -- Calculate distance using Haversine formula (returns distance in kilometers)
     ROUND(
-      6371 * ACOS(
-        COS(RADIANS(user_lat)) * COS(RADIANS(r.latitude)) * 
-        COS(RADIANS(r.longitude) - RADIANS(user_lng)) + 
+      (6371 * ACOS(
+        COS(RADIANS(user_lat)) * COS(RADIANS(r.latitude)) *
+        COS(RADIANS(r.longitude) - RADIANS(user_lng)) +
         SIN(RADIANS(user_lat)) * SIN(RADIANS(r.latitude))
-      ),
+      ))::NUMERIC,
       1
     ) AS distance_km,
     r.name AS restaurant_name,
@@ -38,5 +37,3 @@ AS $$
   ORDER BY distance_km ASC;
 $$;
 
--- Note: This function assumes your 'restaurants' table has 'latitude' and 'longitude' columns.
--- If your column names are different, update them accordingly in the function above.

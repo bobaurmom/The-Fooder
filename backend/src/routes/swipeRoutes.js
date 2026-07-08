@@ -3,8 +3,6 @@ import  swipeController  from '../controllers/swipeController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// All swipe routes require authentication
 router.use(verifyToken);
 
 /**

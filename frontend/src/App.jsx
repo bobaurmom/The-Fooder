@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Fyp from './pages/Fyp';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import Profile from './pages/Profile';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('access_token');
@@ -20,6 +21,7 @@ function App() {
         <Route path="/fyp" element={<Fyp />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/profile" element={<Profile />} />
         <Route
           path="/"
           element={

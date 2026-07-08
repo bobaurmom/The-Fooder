@@ -52,5 +52,17 @@ export const authController = {
         error: error.message || 'Failed to fetch user'
       });
     }
+  },
+  
+  async logout(req, res) {
+    try {
+      const result = await authService.logout();
+      return res.json(result);
+    } catch (error) {
+      console.error('LOGOUT CONTROLLER ERROR:', error);
+      return res.status(500).json({
+        error: error.message || 'Failed to logout'
+      });
+    }
   }
 };

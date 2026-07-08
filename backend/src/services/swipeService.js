@@ -11,8 +11,10 @@ export const swipeService = {
 		// Check if user already swiped on this food
 		const existingSwipe = await swipeRepository.checkExistingSwipe(userId, foodId);
 		if (existingSwipe) {
+			// Map swipe type to action
+			const newAction = swipeType === 'like' ? 'favorite' : 'pass';
 			// Update existing swipe if different type
-			if (existingSwipe.swipe_type !== swipeType) {
+			if (existingSwipe.action !== newAction) {
 				await swipeRepository.deleteSwipe(userId, foodId);
 				return await swipeRepository.createSwipe(userId, foodId, swipeType);
 			}

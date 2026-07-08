@@ -25,13 +25,40 @@ export const foodsService = {
 
     // If user location is provided, use the RPC function to calculate distances
     if (lat && lng) {
+      console.log('Fetching foods with location:', { lat, lng });
       const { data: rpcData, error: rpcError } = await foodsRepository.getFoodsWithLocation(lat, lng);
 
       if (rpcError) {
+        console.error('RPC Error:', rpcError);
         throw new Error(rpcError.message);
       }
 
+      console.log('RPC Data received:', rpcData);
       foods = rpcData;
+
+      // Filter by category/tag if provided (for RPC data)
+      if (tag) {
+        // Since RPC doesn't include tags, we need to fetch tags separately
+        const { data: foodsWithTags, error: tagsError } = await foodsRepository.getFoodsWithoutLocation();
+        if (!tagsError) {
+          const foodIdsWithTag = foodsWithTags
+            .filter(food =>
+              food.food_tags?.some(ft => ft.tags?.tag_name === tag && ft.tags?.tag_type === 'category')
+            )
+            .map(food => food.food_id);
+          foods = foods.filter(food => foodIdsWithTag.includes(food.food_id));
+        }
+      }
+
+      // Filter by search query if provided (for RPC data)
+      if (search) {
+        const searchLower = search.toLowerCase();
+        foods = foods.filter(food =>
+          food.name?.toLowerCase().includes(searchLower) ||
+          food.description?.toLowerCase().includes(searchLower) ||
+          food.restaurant_name?.toLowerCase().includes(searchLower)
+        );
+      }
     } else {
       // Fallback: fetch all foods without distance calculation
       const { data, error } = await foodsRepository.getFoodsWithoutLocation();
@@ -105,13 +132,16 @@ export const foodsService = {
       description: food.description,
       image_url: food.image_url,
       price: food.price,
-      distance_km: food.distance_km !== null ? Number(food.distance_km.toFixed(1)) : null,
+      distance_km: food.distance_km !== null && food.distance_km !== '' ? parseFloat(food.distance_km) : null,
       restaurant_name: food.restaurant_name || 'Restaurant',
       restaurant_address: food.restaurant_address || 'Address not available',
       gallery: [food.image_url]
     }));
 
-    return { foods: transformedFoods };
+    // Randomize the order of foods
+    const shuffledFoods = transformedFoods.sort(() => Math.random() - 0.5);
+
+    return { foods: shuffledFoods };
   },
 
   async filterFoods(minBudget, maxBudget, distance, categories) {
