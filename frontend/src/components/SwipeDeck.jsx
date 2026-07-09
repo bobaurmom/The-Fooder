@@ -6,11 +6,7 @@ import '../styles/fyp.css';
 export default function Food({ food = fallbackFood, onAddToCart, onOrder, onNextFood, onPreviousFood }) {
 	const mergedFood = useMemo(
 		() => ({
-			...food,
-			gallery:
-				food?.gallery?.length > 0
-					? food.gallery
-					: [food?.image_url || fallbackFood.image_url, ...fallbackFood.gallery.slice(1)],
+			...food
 		}),
 		[food],
 	);

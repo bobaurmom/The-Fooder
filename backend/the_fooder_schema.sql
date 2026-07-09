@@ -158,3 +158,23 @@ ALTER TABLE "orders" ADD FOREIGN KEY ("promo_id") REFERENCES "promotions" ("prom
 ALTER TABLE "order_items" ADD FOREIGN KEY ("order_id") REFERENCES "orders" ("order_id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "order_items" ADD FOREIGN KEY ("food_id") REFERENCES "food_items" ("food_id") ON DELETE SET NULL DEFERRABLE INITIALLY IMMEDIATE;
+
+-- index to improve performance
+
+CREATE INDEX IF NOT EXISTS idx_swipe_logs_user_id_swiped_at ON swipe_logs (user_id, swiped_at DESC);
+CREATE INDEX IF NOT EXISTS idx_swipe_logs_food_id ON swipe_logs (food_id);
+
+CREATE INDEX IF NOT EXISTS idx_food_items_restaurant_id ON food_items (restaurant_id);
+CREATE INDEX IF NOT EXISTS idx_food_items_is_available_price ON food_items (is_available, price);
+
+CREATE INDEX IF NOT EXISTS idx_restaurants_lat_lng ON restaurants (latitude, longitude);
+
+CREATE INDEX IF NOT EXISTS idx_cart_items_user_id ON cart_items (user_id);
+
+CREATE INDEX IF NOT EXISTS idx_orders_user_id_ordered_at ON orders (user_id, ordered_at DESC);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items (order_id);
+
+CREATE INDEX IF NOT EXISTS idx_promotions_restaurant_id_active ON promotions (restaurant_id, is_active);
+
+CREATE INDEX IF NOT EXISTS idx_tags_tag_type ON tags (tag_type);
+

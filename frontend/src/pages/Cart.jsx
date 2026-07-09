@@ -8,6 +8,18 @@ export default function Cart() {
 	const navigate = useNavigate();
 	const [cartItems, setCartItems] = useState([]);
 
+	const deliveryFeeFromDistance = (items) => {
+		const distances = items
+			.map((item) => Number(item.distance_km))
+			.filter((distance) => Number.isFinite(distance) && distance >= 0);
+
+		const longestDistance = distances.length > 0 ? Math.max(...distances) : 0;
+		const baseFee = 1.5;
+		const perKmFee = 0.35;
+
+		return baseFee + longestDistance * perKmFee;
+	};
+
 	useEffect(() => {
 		loadCart();
 	}, []);
@@ -31,10 +43,11 @@ export default function Cart() {
 	};
 
 	const totalPrice = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
+	const deliveryFee = deliveryFeeFromDistance(cartItems).toFixed(2);
+	const grandTotal = (parseFloat(totalPrice) + parseFloat(deliveryFee)).toFixed(2);
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
-			<Header />
 			<div className="pt-58 px-4 pb-32 max-w-2xl mx-auto w-full">
 				{cartItems.length === 0 ? (
 					<div className="text-center py-12">
@@ -77,11 +90,11 @@ export default function Cart() {
 							</div>
 							<div className="flex justify-between items-center mb-6">
 								<span className="text-gray-600">Delivery fee</span>
-								<span className="text-gray-900">$2.00</span>
+								<span className="text-gray-900">${deliveryFee}</span>
 							</div>
 							<div className="border-t border-gray-200 pt-4 flex justify-between items-center mb-6">
 								<span className="text-lg font-semibold text-gray-900">Total</span>
-								<span className="text-2xl font-bold text-gray-900">${(parseFloat(totalPrice) + 2).toFixed(2)}</span>
+								<span className="text-2xl font-bold text-gray-900">${grandTotal}</span>
 							</div>
 							<button
 								onClick={handleClearCart}

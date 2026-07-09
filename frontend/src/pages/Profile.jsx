@@ -73,12 +73,11 @@ export default function Profile() {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
-			<Header />
 			<div className="pt-24 pb-24 px-4">
 				<div className="max-w-4xl mx-auto">
 					{/* Back button */}
 					<button
-						onClick={() => navigate('/')}
+						onClick={() => navigate('/fyp')}
 						className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
 					>
 						<FaArrowLeft /> Back to Home

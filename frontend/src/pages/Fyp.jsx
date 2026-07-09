@@ -15,6 +15,7 @@ export default function Fyp() {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [userLocation, setUserLocation] = useState(null);
+	const [locationReady, setLocationReady] = useState(false);
 
 	const fetchFoods = async (category = null, filterParams = null, search = null) => {
 		try {
@@ -58,6 +59,9 @@ export default function Fyp() {
 			.catch((err) => {
 				console.error('Failed to get location:', err.message);
 				// Continue without location - backend will use fallback
+			})
+			.finally(() => {
+				setLocationReady(true);
 			});
 	}, []);
 
@@ -70,8 +74,12 @@ export default function Fyp() {
 	}, [searchQuery]);
 
 	useEffect(() => {
+		if (!locationReady) {
+			return;
+		}
+
 		fetchFoods(selectedCategory, filters, debouncedSearchQuery);
-	}, [selectedCategory, filters, debouncedSearchQuery, userLocation]);
+	}, [selectedCategory, filters, debouncedSearchQuery, userLocation, locationReady]);
 
 	const handleCategoryChange = (category) => {
 		setSelectedCategory(category);
@@ -82,6 +90,7 @@ export default function Fyp() {
 		setFilters(filterParams);
 		setCurrentIndex(0);
 	};
+	console.log('rendered');
 
 	const handleFilterReset = () => {
 		setFilters({ distance: null, maxBudget: null });
@@ -130,7 +139,7 @@ export default function Fyp() {
 
     const currentFood = foods[currentIndex];
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+		<div className="min-h-screen bg-linear-to-br from-purple-50 to-indigo-100">
 			<Header 
 				onCategoryChange={handleCategoryChange} 
 				onFilterApply={handleFilterApply}

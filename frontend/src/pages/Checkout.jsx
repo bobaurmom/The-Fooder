@@ -11,6 +11,18 @@ export default function Checkout() {
 	const [saveCard, setSaveCard] = useState(false);
 	const [showSuccess, setShowSuccess] = useState(false);
 
+	const deliveryFeeFromDistance = (items) => {
+		const distances = items
+			.map((item) => Number(item.distance_km))
+			.filter((distance) => Number.isFinite(distance) && distance >= 0);
+
+		const longestDistance = distances.length > 0 ? Math.max(...distances) : 0;
+		const baseFee = 1.5;
+		const perKmFee = 0.35;
+
+		return baseFee + longestDistance * perKmFee;
+	};
+
 	useEffect(() => {
 		loadCart();
 	}, []);
@@ -21,7 +33,7 @@ export default function Checkout() {
 	};
 
 	const subtotal = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
-	const deliveryFee = 1.5;
+	const deliveryFee = deliveryFeeFromDistance(cartItems);
 	const total = subtotal + deliveryFee;
 
 	const handlePayNow = () => {
