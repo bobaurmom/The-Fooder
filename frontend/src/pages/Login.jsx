@@ -7,7 +7,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    email: '',
+    identifier: '',
     password: ''
   });
 
@@ -28,15 +28,42 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const data = await loginUser(form.email, form.password);
+      const data = await loginUser(form.identifier, form.password);
 
       console.log('LOGIN SUCCESS:', data);
 
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('refresh_token', data.refresh_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      navigate('/fyp');
+      
+      // Fetch user role from backend to get the custom role field
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/user`, {
+          headers: {
+            'Authorization': `Bearer ${data.access_token}`
+          }
+        });
+        const userData = await response.json();
+        
+        // Merge Supabase user data with custom user data including role
+        const mergedUser = {
+          ...data.user,
+          ...userData.user
+        };
+        
+        localStorage.setItem('user', JSON.stringify(mergedUser));
+        
+        // Navigate based on role
+        if (mergedUser.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/fyp');
+        }
+      } catch (fetchError) {
+        console.error('Error fetching user data:', fetchError);
+        // Fallback to storing just Supabase user data
+        localStorage.setItem('user', JSON.stringify(data.user));
+        navigate('/fyp');
+      }
     } catch (err) {
       console.log('LOGIN ERROR:', err.response?.data || err.message);
       setError(err.response?.data?.error || 'Login failed');
@@ -55,12 +82,12 @@ const Login = () => {
           <h2>Login</h2>
 
           <form onSubmit={handleSubmit}>
-            <label>Email</label>
+            <label>Email or Username</label>
             <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
+              type="text"
+              name="identifier"
+              placeholder="Email or Username"
+              value={form.identifier}
               onChange={handleChange}
             />
 

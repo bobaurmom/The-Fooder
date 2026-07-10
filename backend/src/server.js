@@ -1,12 +1,15 @@
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { verifyToken } from './middleware/authMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
 import foodsRoutes from './routes/foodsRoutes.js';
 import swipeRoutes from './routes/swipeRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
 
@@ -18,10 +21,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 
-/* =========================
-   TEST ROUTE
-========================= */
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -29,13 +30,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-/* =========================
-   ROUTES
-========================= */
 app.use('/api/auth', authRoutes);
 app.use('/api', foodsRoutes);
 app.use('/api/swipes', swipeRoutes);
 app.use('/api', profileRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

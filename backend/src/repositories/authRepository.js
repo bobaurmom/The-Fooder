@@ -1,7 +1,7 @@
 import { supabase } from '../../supabaseClient.js';
 
 export const authRepository = {
-  async signUp(email, password, username) {
+  async signUp(email, password, username, role = 'user') {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -21,7 +21,8 @@ export const authRepository = {
         .insert({
           username,
           email,
-          password_hash: 'supabase_auth' // Password is managed by Supabase Auth
+          password_hash: 'supabase_auth', // Password is managed by Supabase Auth
+          role
         })
         .select()
         .single();
@@ -35,7 +36,25 @@ export const authRepository = {
     return { data, error };
   },
 
-  async signInWithPassword(email, password) {
+  async signInWithPassword(identifier, password) {
+    // Check if identifier is username or email
+    let email = identifier;
+    
+    // If identifier doesn't contain @, treat it as username
+    if (!identifier.includes('@')) {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('email')
+        .eq('username', identifier)
+        .single();
+      
+      if (userError || !userData) {
+        return { data: null, error: { message: 'User not found' } };
+      }
+      
+      email = userData.email;
+    }
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password

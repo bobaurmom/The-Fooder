@@ -19,7 +19,7 @@ export async function verifyToken(req, res, next) {
     // Fetch user data from custom users table using the auth user's email
     let { data: userData, error: userError } = await supabase
       .from('users')
-      .select('user_id, username, email')
+      .select('user_id, username, email, role')
       .eq('email', user.email)
       .single();
 
@@ -53,11 +53,28 @@ export async function verifyToken(req, res, next) {
       id: userData.user_id,
       username: userData.username,
       email: userData.email,
+      role: userData.role || 'customer',
       auth: user
     };
     next();
   } catch (error) {
     console.error('Auth error:', error);
     res.status(401).json({ error: 'Authentication failed' });
+  }
+}
+
+export async function verifyAdmin(req, res, next) {
+  try {
+    // Check if user has admin role
+    const isAdmin = req.user.role === 'admin';
+    
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    next();
+  } catch (error) {
+    console.error('Admin verification error:', error);
+    res.status(403).json({ error: 'Admin verification failed' });
   }
 }

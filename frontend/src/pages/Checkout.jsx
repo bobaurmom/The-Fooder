@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FaCheckCircle, FaArrowLeft, FaCreditCard } from 'react-icons/fa';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import api from '../services/api';
+import { getCurrentLocation } from '../utils/geolocation';
 
 export default function Checkout() {
 	const navigate = useNavigate();
@@ -10,37 +12,87 @@ export default function Checkout() {
 	const [selectedPayment, setSelectedPayment] = useState('credit');
 	const [saveCard, setSaveCard] = useState(false);
 	const [showSuccess, setShowSuccess] = useState(false);
-
-	const deliveryFeeFromDistance = (items) => {
-		const distances = items
-			.map((item) => Number(item.distance_km))
-			.filter((distance) => Number.isFinite(distance) && distance >= 0);
-
-		const longestDistance = distances.length > 0 ? Math.max(...distances) : 0;
-		const baseFee = 1.5;
-		const perKmFee = 0.35;
-
-		return baseFee + longestDistance * perKmFee;
-	};
+	const [quote, setQuote] = useState(null);
+	const [quoteLoading, setQuoteLoading] = useState(false);
+	const [quoteError, setQuoteError] = useState('');
+	const [creatingOrder, setCreatingOrder] = useState(false);
+	const [userLocation, setUserLocation] = useState(null);
 
 	useEffect(() => {
 		loadCart();
+		getCurrentLocation()
+			.then((location) => setUserLocation(location))
+			.catch((error) => {
+				console.error('Failed to get location for checkout quote:', error.message);
+				setUserLocation(null);
+			});
 	}, []);
+
+	useEffect(() => {
+		const fetchQuote = async () => {
+			if (cartItems.length === 0) {
+				setQuote(null);
+				setQuoteError('');
+				return;
+			}
+
+			try {
+				setQuoteLoading(true);
+				setQuoteError('');
+
+				const response = await api.post('/orders/quote', {
+					items: cartItems.map((item) => ({
+						food_id: item.food_id,
+						quantity: item.quantity || 1
+					})),
+					userLocation
+				});
+
+				setQuote(response.data);
+			} catch (error) {
+				console.error('Failed to fetch checkout quote:', error);
+				setQuoteError(error.response?.data?.error || 'Failed to calculate order total');
+				setQuote(null);
+			} finally {
+				setQuoteLoading(false);
+			}
+		};
+
+		fetchQuote();
+	}, [cartItems, userLocation]);
 
 	const loadCart = () => {
 		const savedCart = localStorage.getItem('fooder_cart');
 		setCartItems(savedCart ? JSON.parse(savedCart) : []);
 	};
 
-	const subtotal = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
-	const deliveryFee = deliveryFeeFromDistance(cartItems);
-	const total = subtotal + deliveryFee;
+	const subtotal = quote?.subtotal ?? 0;
+	const deliveryFee = quote?.delivery_fee ?? 0;
+	const total = quote?.total_price ?? 0;
 
-	const handlePayNow = () => {
-		setShowSuccess(true);
-		// Clear cart after successful payment
-		localStorage.removeItem('fooder_cart');
-		window.dispatchEvent(new Event('storage'));
+	const handlePayNow = async () => {
+		try {
+			setCreatingOrder(true);
+			setQuoteError('');
+
+			const response = await api.post('/orders', {
+				items: cartItems.map((item) => ({
+					food_id: item.food_id,
+					quantity: item.quantity || 1
+				})),
+				userLocation
+			});
+
+			setQuote(response.data);
+			setShowSuccess(true);
+			localStorage.removeItem('fooder_cart');
+			window.dispatchEvent(new Event('storage'));
+		} catch (error) {
+			console.error('Failed to create order:', error);
+			setQuoteError(error.response?.data?.error || 'Failed to create order');
+		} finally {
+			setCreatingOrder(false);
+		}
 	};
 
 	const handleGoBack = () => {
@@ -49,7 +101,7 @@ export default function Checkout() {
 
 	if (showSuccess) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
+			<div className="min-h-screen bg-linear-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
 				<div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl text-center">
 					<div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
 						<FaCheckCircle className="w-12 h-12 text-green-500" />
@@ -60,7 +112,7 @@ export default function Checkout() {
 					</p>
 					<button
 						onClick={handleGoBack}
-						className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-medium hover:from-pink-600 hover:to-purple-600 transition-all"
+						className="w-full py-3 px-4 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 text-white font-medium hover:from-pink-600 hover:to-purple-600 transition-all"
 					>
 						Go Back
 					</button>
@@ -70,7 +122,7 @@ export default function Checkout() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+		<div className="min-h-screen bg-linear-to-br from-purple-50 to-indigo-100">
 			<Header />
 			<div className="pt-38 px-4 pb-32 max-w-2xl mx-auto w-full">
 				<button
@@ -97,17 +149,18 @@ export default function Checkout() {
 					<div className="border-t border-gray-200 pt-3 space-y-2">
 						<div className="flex justify-between text-sm">
 							<span className="text-gray-600">Order total</span>
-							<span className="text-gray-900">${subtotal.toFixed(2)}</span>
+							<span className="text-gray-900">{quoteLoading ? '...' : `$${subtotal.toFixed(2)}`}</span>
 						</div>
 						<div className="flex justify-between text-sm">
 							<span className="text-gray-600">Delivery fees</span>
-							<span className="text-gray-900">${deliveryFee.toFixed(2)}</span>
+							<span className="text-gray-900">{quoteLoading ? '...' : `$${deliveryFee.toFixed(2)}`}</span>
 						</div>
 						<div className="flex justify-between font-semibold text-gray-900 pt-2 border-t border-gray-200">
 							<span>Total</span>
-							<span>${total.toFixed(2)}</span>
+							<span>{quoteLoading ? '...' : `$${total.toFixed(2)}`}</span>
 						</div>
 					</div>
+					{quoteError && <p className="mt-4 text-sm text-red-600">{quoteError}</p>}
 					<div className="mt-4 p-3 bg-purple-50 rounded-lg">
 						<p className="text-sm text-purple-700">
 							<strong>Estimated delivery time:</strong> 15 - 30 mins
@@ -193,9 +246,10 @@ export default function Checkout() {
 					</div>
 					<button
 						onClick={handlePayNow}
-						className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-medium hover:from-pink-600 hover:to-purple-600 transition-all"
+						disabled={creatingOrder || quoteLoading || cartItems.length === 0}
+						className="w-full py-3 px-4 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 text-white font-medium hover:from-pink-600 hover:to-purple-600 transition-all"
 					>
-						Pay Now
+						{creatingOrder ? 'Processing...' : 'Pay Now'}
 					</button>
 				</div>
 			</div>

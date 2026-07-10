@@ -13,6 +13,13 @@ export default function Profile() {
 	const [activeTab, setActiveTab] = useState('favorites');
 	const [loading, setLoading] = useState(true);
 
+	const handleLogout = () => {
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('refresh_token');
+		localStorage.removeItem('user');
+		navigate('/login');
+	};
+
 	useEffect(() => {
 		const fetchProfileData = async () => {
 			try {
@@ -226,22 +233,10 @@ export default function Profile() {
 											</button>
 										</div>
 									</div>
-									<div className="bg-gray-50 rounded-xl p-4">
-										<h3 className="font-semibold text-gray-800 mb-4">App Settings</h3>
-										<div className="space-y-3">
-											<button className="w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between">
-												<span>Language</span>
-												<span className="text-gray-500">English</span>
-											</button>
-											<button className="w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between">
-												<span>Currency</span>
-												<span className="text-gray-500">USD</span>
-											</button>
-										</div>
-									</div>
-									<button className="w-full px-4 py-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors font-medium">
+									<button onClick={handleLogout} className="w-full px-4 py-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors font-medium">
 										Logout
 									</button>
+									
 								</div>
 							)}
 						</div>

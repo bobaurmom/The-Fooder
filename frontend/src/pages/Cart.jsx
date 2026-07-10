@@ -3,26 +3,60 @@ import { useNavigate } from 'react-router-dom';
 import { FaTrash, FaShoppingCart } from 'react-icons/fa';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import api from '../services/api';
+import { getCurrentLocation } from '../utils/geolocation';
+
 
 export default function Cart() {
 	const navigate = useNavigate();
 	const [cartItems, setCartItems] = useState([]);
-
-	const deliveryFeeFromDistance = (items) => {
-		const distances = items
-			.map((item) => Number(item.distance_km))
-			.filter((distance) => Number.isFinite(distance) && distance >= 0);
-
-		const longestDistance = distances.length > 0 ? Math.max(...distances) : 0;
-		const baseFee = 1.5;
-		const perKmFee = 0.35;
-
-		return baseFee + longestDistance * perKmFee;
-	};
-
+	const [quote, setQuote] = useState(null);
+	const [quoteLoading, setQuoteLoading] = useState(false);
+	const [quoteError, setQuoteError] = useState('');
+	const [userLocation, setUserLocation] = useState(null);
+	
 	useEffect(() => {
 		loadCart();
+		getCurrentLocation()
+			.then((location) => setUserLocation(location))
+			.catch((error) => {
+				console.error('Failed to get location for cart quote:', error.message);
+				setUserLocation(null);
+			});
 	}, []);
+
+	useEffect(() => {
+		const fetchQuote = async () => {
+			if (cartItems.length === 0) {
+				setQuote(null);
+				setQuoteError('');
+				return;
+			}
+
+			try {
+				setQuoteLoading(true);
+				setQuoteError('');
+
+				const response = await api.post('/orders/quote', {
+					items: cartItems.map((item) => ({
+						food_id: item.food_id,
+						quantity: item.quantity || 1
+					})),
+					userLocation
+				});
+
+				setQuote(response.data);
+			} catch (error) {
+				console.error('Failed to fetch cart quote:', error);
+				setQuoteError(error.response?.data?.error || 'Failed to calculate order total');
+				setQuote(null);
+			} finally {
+				setQuoteLoading(false);
+			}
+		};
+
+		fetchQuote();
+	}, [cartItems, userLocation]);
 
 	const loadCart = () => {
 		const savedCart = localStorage.getItem('fooder_cart');
@@ -42,12 +76,12 @@ export default function Cart() {
 		window.dispatchEvent(new Event('storage'));
 	};
 
-	const totalPrice = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
-	const deliveryFee = deliveryFeeFromDistance(cartItems).toFixed(2);
-	const grandTotal = (parseFloat(totalPrice) + parseFloat(deliveryFee)).toFixed(2);
+	const subtotal = quote?.subtotal ?? 0;
+	const deliveryFee = quote?.delivery_fee ?? 0;
+	const grandTotal = quote?.total_price ?? 0;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+		<div className="min-h-screen bg-linear-to-br from-purple-50 to-indigo-100">
 			<div className="pt-58 px-4 pb-32 max-w-2xl mx-auto w-full">
 				{cartItems.length === 0 ? (
 					<div className="text-center py-12">
@@ -86,16 +120,25 @@ export default function Cart() {
 						<div className="bg-white rounded-xl p-6 shadow-sm">
 							<div className="flex justify-between items-center mb-4">
 								<span className="text-gray-600">Subtotal</span>
-								<span className="text-xl font-bold text-gray-900">${totalPrice}</span>
+								<span className="text-xl font-bold text-gray-900">
+									{quoteLoading ? '...' : `$${subtotal.toFixed(2)}`}
+								</span>
 							</div>
 							<div className="flex justify-between items-center mb-6">
 								<span className="text-gray-600">Delivery fee</span>
-								<span className="text-gray-900">${deliveryFee}</span>
+								<span className="text-gray-900">
+									{quoteLoading ? '...' : `$${deliveryFee.toFixed(2)}`}
+								</span>
 							</div>
 							<div className="border-t border-gray-200 pt-4 flex justify-between items-center mb-6">
 								<span className="text-lg font-semibold text-gray-900">Total</span>
-								<span className="text-2xl font-bold text-gray-900">${grandTotal}</span>
+								<span className="text-2xl font-bold text-gray-900">
+									{quoteLoading ? '...' : `$${grandTotal.toFixed(2)}`}
+								</span>
 							</div>
+							{quoteError && (
+								<p className="mb-4 text-sm text-red-600">{quoteError}</p>
+							)}
 							<button
 								onClick={handleClearCart}
 								className="w-full py-3 px-4 rounded-xl border border-red-300 text-red-600 font-medium hover:bg-red-50 transition-colors mb-3"
@@ -104,7 +147,7 @@ export default function Cart() {
 							</button>
 							<button
 								onClick={() => navigate('/checkout')}
-								className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-medium hover:from-pink-600 hover:to-purple-600 transition-all"
+								className="w-full py-3 px-4 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 text-white font-medium hover:from-pink-600 hover:to-purple-600 transition-all"
 							>
 								Checkout
 							</button>

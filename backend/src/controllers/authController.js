@@ -3,11 +3,11 @@ import { authService } from '../services/authService.js';
 export const authController = {
   async register(req, res) {
     try {
-      const { email, password, username } = req.body;
+      const { email, password, username, role } = req.body;
 
       console.log('REGISTER BODY:', req.body);
 
-      const result = await authService.register(email, password, username);
+      const result = await authService.register(email, password, username, role);
 
       console.log('REGISTER RESULT:', result);
 
@@ -22,11 +22,11 @@ export const authController = {
 
   async login(req, res) {
     try {
-      const { email, password } = req.body;
+      const { identifier, password } = req.body;
 
       console.log('LOGIN BODY:', req.body);
 
-      const result = await authService.login(email, password);
+      const result = await authService.login(identifier, password);
 
       console.log('LOGIN RESULT:', result);
 

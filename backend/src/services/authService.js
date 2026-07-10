@@ -1,12 +1,12 @@
 import { authRepository } from '../repositories/authRepository.js';
 
 export const authService = {
-  async register(email, password, username) {
+  async register(email, password, username, role = 'user') {
     if (!email || !password || !username) {
       throw new Error('Email, password, and username are required');
     }
 
-    const { data, error } = await authRepository.signUp(email, password, username);
+    const { data, error } = await authRepository.signUp(email, password, username, role);
 
     if (error) {
       throw new Error(error.message);
@@ -19,12 +19,12 @@ export const authService = {
     };
   },
 
-  async login(email, password) {
-    if (!email || !password) {
-      throw new Error('Email and password are required');
+  async login(identifier, password) {
+    if (!identifier || !password) {
+      throw new Error('Identifier (email or username) and password are required');
     }
 
-    const { data, error } = await authRepository.signInWithPassword(email, password);
+    const { data, error } = await authRepository.signInWithPassword(identifier, password);
 
     if (error) {
       throw new Error(error.message);
