@@ -1,0 +1,112 @@
+.filter-page {
+  min-height: 100vh;
+  background: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}
+
+.filter-wrapper {
+  width: 700px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.filter-title {
+  text-align: center;
+  margin-bottom: 8px;
+  color: #3b2b2b;
+}
+
+.filter-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.filter-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #444;
+}
+
+.filter-group input[type='number'] {
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: #f4f4f4;
+  font-size: 16px;
+}
+
+.filter-group input[type='range'] {
+  width: 100%;
+}
+
+.category-options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.category-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 999px;
+  background: #f1f1f1;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.category-btn.active {
+  background: #ff2333;
+  color: white;
+}
+
+.results-section {
+  margin-top: 20px;
+}
+
+.filter-error {
+  color: red;
+}
+
+.food-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.food-card {
+  background: #fafafa;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.food-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.food-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
