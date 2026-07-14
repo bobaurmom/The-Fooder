@@ -17,7 +17,6 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-800">Admin Panel</h1>
@@ -32,7 +31,6 @@ export default function Admin() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Tab Navigation */}
         <div className="flex flex-wrap gap-2 mb-8">
           <button
             onClick={() => setActiveTab('orders')}
@@ -80,7 +78,6 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* Tab Content */}
         {activeTab === 'orders' && <OrderManagement />}
         {activeTab === 'restaurants' && <RestaurantManagement />}
         {activeTab === 'settings' && <SystemSettings />}

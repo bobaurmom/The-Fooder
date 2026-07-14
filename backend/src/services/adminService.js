@@ -422,6 +422,26 @@ export const adminService = {
 
   async deleteUser(userId) {
     try {
+      const { data: targetUser, error: fetchError } = await supabase
+        .from('users')
+        .select('user_id, role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
+
+      if (!targetUser) {
+        const notFoundError = new Error('User not found');
+        notFoundError.status = 404;
+        throw notFoundError;
+      }
+
+      if (targetUser.role === 'admin') {
+        const forbiddenError = new Error('Cannot delete an admin account');
+        forbiddenError.status = 403;
+        throw forbiddenError;
+      }
+
       const { error } = await supabase
         .from('users')
         .delete()

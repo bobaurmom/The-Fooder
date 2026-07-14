@@ -186,7 +186,20 @@ CREATE INDEX IF NOT EXISTS idx_promotions_restaurant_id_active ON promotions (re
 
 CREATE INDEX IF NOT EXISTS idx_tags_tag_type ON tags (tag_type);
 
-CREATE INDEX IF NOT EXISTS idx_page_analytics_timestamp ON page_analytics (timestamp DESC);
-CREATE INDEX IF NOT EXISTS idx_page_analytics_visitor_id ON page_analytics (visitor_id);
-CREATE INDEX IF NOT EXISTS idx_page_analytics_page_path ON page_analytics (page_path);
+-- Authentication and roles
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users (role);
+
+-- Food discovery and filtering
+CREATE INDEX IF NOT EXISTS idx_food_tags_food_id ON food_tags (food_id);
+CREATE INDEX IF NOT EXISTS idx_food_tags_tag_id ON food_tags (tag_id);
+CREATE INDEX IF NOT EXISTS idx_food_items_price ON food_items (price);
+
+-- Swipe and favorites
+CREATE INDEX IF NOT EXISTS idx_swipe_logs_user_id_food_id ON swipe_logs (user_id, food_id);
+CREATE INDEX IF NOT EXISTS idx_swipe_logs_user_id_action ON swipe_logs (user_id, action);
+
+-- Orders
+CREATE INDEX IF NOT EXISTS idx_orders_order_status ON orders (order_status);
+CREATE INDEX IF NOT EXISTS idx_orders_restaurant_id ON orders (restaurant_id);
 

@@ -217,7 +217,7 @@ export const adminController = {
       return res.json({ message: 'User deleted successfully' });
     } catch (error) {
       console.error('DELETE USER CONTROLLER ERROR:', error);
-      return res.status(500).json({
+      return res.status(error.status || 500).json({
         error: error.message || 'Failed to delete user'
       });
     }
