@@ -30,9 +30,9 @@ router.post('/backup/restore', upload.single('backup'), adminController.restoreB
 
 // Order & Delivery Management
 router.get('/orders', adminController.getAllOrders);
+router.get('/orders/stats', adminController.getOrderStats);
 router.get('/orders/:orderId', adminController.getOrderById);
 router.put('/orders/:orderId/status', adminController.updateOrderStatus);
-router.get('/orders/stats', adminController.getOrderStats);
 
 // Merchant & Restaurant Management
 router.get('/restaurants', adminController.getAllRestaurants);

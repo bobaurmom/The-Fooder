@@ -7,6 +7,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import Favorite from './pages/Favorite';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('access_token');
@@ -83,6 +84,14 @@ function App() {
             <AdminRoute>
               <Admin />
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/favorites"
+          element={
+            <ProtectedRoute>
+              <Favorite />
+            </ProtectedRoute>
           }
         />
       </Routes>

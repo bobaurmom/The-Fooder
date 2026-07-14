@@ -82,5 +82,26 @@ export const profileRepository = {
       .order('ordered_at', { ascending: false });
 
     return { data, error };
+  },
+
+  async updateProfile(userId, profileData) {
+    const { data, error } = await supabase
+      .from('users')
+      .update(profileData)
+      .eq('user_id', userId)
+      .select('user_id, username, email, created_at')
+      .single();
+
+    return { data, error };
+  },
+
+  async changePassword(userId, newPassword) {
+    // Note: Password changes should be done through Supabase Auth, not directly in the users table
+    // This is a placeholder for the actual implementation
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+
+    return { data, error };
   }
 };
