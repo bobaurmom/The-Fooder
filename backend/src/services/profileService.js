@@ -69,5 +69,25 @@ export const profileService = {
     }));
 
     return orders;
+  },
+
+  async updateProfile(userId, profileData) {
+    const { data, error } = await profileRepository.updateProfile(userId, profileData);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  },
+
+  async changePassword(userId, newPassword) {
+    const { data, error } = await profileRepository.changePassword(userId, newPassword);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
   }
 };

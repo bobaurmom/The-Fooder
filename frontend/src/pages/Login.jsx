@@ -30,7 +30,6 @@ const Login = () => {
 
       const data = await loginUser(form.identifier, form.password);
 
-      console.log('LOGIN SUCCESS:', data);
 
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('refresh_token', data.refresh_token);

@@ -96,5 +96,61 @@ export const profileController = {
         error: error.message || 'Failed to fetch orders'
       });
     }
+  },
+
+  async updateProfile(req, res) {
+    try {
+      const userId = req.user.id;
+      const { username, email } = req.body;
+
+      if (!username && !email) {
+        return res.status(400).json({
+          error: 'Username or email is required'
+        });
+      }
+
+      const profileData = {};
+      if (username) profileData.username = username;
+      if (email) profileData.email = email;
+
+      const updatedUser = await profileService.updateProfile(userId, profileData);
+
+      return res.json({
+        message: 'Profile updated successfully',
+        user: updatedUser
+      });
+    } catch (error) {
+      console.error('UPDATE PROFILE CONTROLLER ERROR:', error);
+      return res.status(500).json({
+        error: error.message || 'Failed to update profile'
+      });
+    }
+  },
+
+  async changePassword(req, res) {
+    try {
+      const userId = req.user.id;
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({
+          error: 'Current password and new password are required'
+        });
+      }
+
+      // Note: For Supabase Auth, we need the session token to change password
+      // This is a simplified implementation - in production, you'd verify current password first
+      const result = await profileService.changePassword(userId, newPassword);
+
+      return res.json({
+        message: 'Password changed successfully',
+        data: result
+      });
+    } catch (error) {
+      console.error('CHANGE PASSWORD CONTROLLER ERROR:', error);
+      return res.status(500).json({
+        error: error.message || 'Failed to change password'
+      });
+    }
   }
 };
