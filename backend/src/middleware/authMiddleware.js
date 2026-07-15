@@ -66,7 +66,7 @@ export async function verifyToken(req, res, next) {
 export async function verifyAdmin(req, res, next) {
   try {
     // Check if user has admin role
-    const isAdmin = req.user.role === 'admin';
+    const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
     
     if (!isAdmin) {
       return res.status(403).json({ error: 'Admin access required' });
@@ -76,5 +76,110 @@ export async function verifyAdmin(req, res, next) {
   } catch (error) {
     console.error('Admin verification error:', error);
     res.status(403).json({ error: 'Admin verification failed' });
+  }
+}
+
+export async function verifySuperAdmin(req, res, next) {
+  try {
+    // Check if user has super_admin role
+    const isSuperAdmin = req.user.role === 'super_admin';
+    
+    if (!isSuperAdmin) {
+      return res.status(403).json({ error: 'Super admin access required' });
+    }
+    
+    next();
+  } catch (error) {
+    console.error('Super admin verification error:', error);
+    res.status(403).json({ error: 'Super admin verification failed' });
+  }
+}
+
+export function verifyPermission(permissionName) {
+  return async (req, res, next) => {
+    try {
+      const { rolePermissionRepository } = await import('../repositories/rolePermissionRepository.js');
+      
+      const { hasPermission, error } = await rolePermissionRepository.checkUserPermission(
+        req.user.id,
+        permissionName
+      );
+
+      if (error) {
+        console.error('Permission check error:', error);
+        return res.status(500).json({ error: 'Permission check failed' });
+      }
+
+      if (!hasPermission) {
+        return res.status(403).json({ 
+          error: 'Insufficient permissions',
+          required: permissionName
+        });
+      }
+
+      next();
+    } catch (error) {
+      console.error('Permission verification error:', error);
+      res.status(500).json({ error: 'Permission verification failed' });
+    }
+  };
+}
+
+export function verifyAnyPermission(permissionNames) {
+  return async (req, res, next) => {
+    try {
+      const { rolePermissionRepository } = await import('../repositories/rolePermissionRepository.js');
+      
+      // Check if user has any of the required permissions
+      let hasAnyPermission = false;
+      for (const permissionName of permissionNames) {
+        const { hasPermission, error } = await rolePermissionRepository.checkUserPermission(
+          req.user.id,
+          permissionName
+        );
+        
+        if (error) {
+          console.error('Permission check error:', error);
+          continue;
+        }
+
+        if (hasPermission) {
+          hasAnyPermission = true;
+          break;
+        }
+      }
+
+      if (!hasAnyPermission) {
+        return res.status(403).json({ 
+          error: 'Insufficient permissions',
+          required: permissionNames
+        });
+      }
+
+      next();
+    } catch (error) {
+      console.error('Permission verification error:', error);
+      res.status(500).json({ error: 'Permission verification failed' });
+    }
+  };
+}
+
+export function requireGuest(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '');
+
+    if (token) {
+      // If token exists, user is already authenticated
+      return res.status(400).json({ 
+        error: 'Already authenticated',
+        message: 'You are already logged in. Please logout first.'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Guest verification error:', error);
+    res.status(500).json({ error: 'Guest verification failed' });
   }
 }

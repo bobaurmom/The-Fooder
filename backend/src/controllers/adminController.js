@@ -221,5 +221,18 @@ export const adminController = {
         error: error.message || 'Failed to delete user'
       });
     }
+  },
+
+  async createAdminWithGrants(req, res) {
+    try {
+      const { adminData, grants } = req.body;
+      const result = await adminService.createAdminWithGrants(adminData, grants, req.user.id);
+      return res.status(201).json(result);
+    } catch (error) {
+      console.error('CREATE ADMIN WITH GRANTS CONTROLLER ERROR:', error);
+      return res.status(500).json({
+        error: error.message || 'Failed to create admin with grants'
+      });
+    }
   }
 };

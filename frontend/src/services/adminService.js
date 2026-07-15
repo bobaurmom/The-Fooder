@@ -99,5 +99,11 @@ export const adminService = {
   async deleteUser(userId) {
     const response = await api.delete(`/admin/users/${userId}`);
     return response.data;
+  },
+
+  // Super Admin: Create Admin with Grants
+  async createAdminWithGrants(adminData, grants) {
+    const response = await api.post('/admin/admins/create-with-grants', { adminData, grants });
+    return response.data;
   }
 };

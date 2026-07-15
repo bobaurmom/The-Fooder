@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { adminController } from '../controllers/adminController.js';
-import { verifyToken, verifyAdmin } from '../middleware/authMiddleware.js';
+import { verifyToken, verifyAdmin, verifySuperAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -20,32 +20,34 @@ const upload = multer({
   }
 });
 
-// All admin routes require authentication and admin role
+// All admin routes require authentication
 router.use(verifyToken);
-router.use(verifyAdmin);
 
-// Database Backup & Recovery
-router.get('/backup/download', adminController.downloadBackup);
-router.post('/backup/restore', upload.single('backup'), adminController.restoreBackup);
+// Database Backup & Recovery (require admin role)
+router.get('/backup/download', verifyAdmin, adminController.downloadBackup);
+router.post('/backup/restore', verifyAdmin, upload.single('backup'), adminController.restoreBackup);
 
-// Order & Delivery Management
-router.get('/orders', adminController.getAllOrders);
-router.get('/orders/stats', adminController.getOrderStats);
-router.get('/orders/:orderId', adminController.getOrderById);
-router.put('/orders/:orderId/status', adminController.updateOrderStatus);
+// Order & Delivery Management (require admin role)
+router.get('/orders', verifyAdmin, adminController.getAllOrders);
+router.get('/orders/stats', verifyAdmin, adminController.getOrderStats);
+router.get('/orders/:orderId', verifyAdmin, adminController.getOrderById);
+router.put('/orders/:orderId/status', verifyAdmin, adminController.updateOrderStatus);
 
-// Merchant & Restaurant Management
-router.get('/restaurants', adminController.getAllRestaurants);
-router.post('/restaurants', adminController.createRestaurant);
-router.put('/restaurants/:restaurantId', adminController.updateRestaurant);
-router.delete('/restaurants/:restaurantId', adminController.deleteRestaurant);
-router.get('/restaurants/:restaurantId/stats', adminController.getRestaurantStats);
+// Merchant & Restaurant Management (require admin role)
+router.get('/restaurants', verifyAdmin, adminController.getAllRestaurants);
+router.post('/restaurants', verifyAdmin, adminController.createRestaurant);
+router.put('/restaurants/:restaurantId', verifyAdmin, adminController.updateRestaurant);
+router.delete('/restaurants/:restaurantId', verifyAdmin, adminController.deleteRestaurant);
+router.get('/restaurants/:restaurantId/stats', verifyAdmin, adminController.getRestaurantStats);
 
-// System Settings & Security
-router.get('/settings', adminController.getSystemSettings);
-router.put('/settings', adminController.updateSystemSettings);
-router.get('/users', adminController.getAllUsers);
-router.put('/users/:userId/role', adminController.updateUserRole);
-router.delete('/users/:userId', adminController.deleteUser);
+// System Settings & Security (require admin role)
+router.get('/settings', verifyAdmin, adminController.getSystemSettings);
+router.put('/settings', verifyAdmin, adminController.updateSystemSettings);
+router.get('/users', verifyAdmin, adminController.getAllUsers);
+router.put('/users/:userId/role', verifyAdmin, adminController.updateUserRole);
+router.delete('/users/:userId', verifyAdmin, adminController.deleteUser);
+
+// Super Admin: Create admin with specific grants (require super admin role)
+router.post('/admins/create-with-grants', verifySuperAdmin, adminController.createAdminWithGrants);
 
 export default router;

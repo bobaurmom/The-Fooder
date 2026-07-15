@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/authService';
 import '../styles/auth.css';
@@ -15,6 +15,21 @@ const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    if (token) {
+      // User is already logged in, redirect based on role
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/fyp');
+      }
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setForm({

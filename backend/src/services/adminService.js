@@ -1,4 +1,5 @@
 import { supabase } from '../../supabaseClient.js';
+import { rolePermissionService } from './rolePermissionService.js';
 
 export const adminService = {
   async createBackup() {
@@ -454,5 +455,10 @@ export const adminService = {
       console.error('DELETE USER SERVICE ERROR:', error);
       throw new Error('Failed to delete user');
     }
+  },
+
+  // Create admin with specific grants (Super Admin only)
+  async createAdminWithGrants(adminData, grants, superAdminId) {
+    return await rolePermissionService.createAdminWithGrants(adminData, grants, superAdminId);
   }
 };

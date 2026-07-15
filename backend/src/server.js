@@ -10,6 +10,7 @@ import swipeRoutes from './routes/swipeRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import rolePermissionRoutes from './routes/rolePermissionRoutes.js';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/api/swipes', swipeRoutes);
 app.use('/api', profileRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/rbac', rolePermissionRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
